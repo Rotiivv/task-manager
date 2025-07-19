@@ -26,8 +26,13 @@ const Tasks = () => {
     return task.time === "moon";
   });
 
-  const handleTaskCheckboxClick = (taskId) => {
+  const handleTaskDeleteClick = (taskId) => {
+    const newTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTasks);
     console.log("cliquei");
+  };
+
+  const handleTaskCheckboxClick = (taskId) => {
     const newTasks = tasks.map((task) => {
       if (task.id !== taskId) {
         return task;
@@ -83,6 +88,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
+                handleTaskDeleteClick={handleTaskDeleteClick}
               />
             );
           })}
@@ -97,6 +103,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
+                handleTaskDeleteClick={handleTaskDeleteClick}
               />
             );
           })}
@@ -111,6 +118,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
+                handleTaskDeleteClick={handleTaskDeleteClick}
               />
             );
           })}
