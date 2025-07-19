@@ -1,14 +1,17 @@
 import Button from "./Button";
 import TaskItem from "./TaskItem";
-
-import AddIcon from "../assets/icons/add.svg?react";
-import TrashIcon from "../assets/icons/trash.svg?react";
-import MorningIcon from "../assets/icons/sun.svg?react";
-import AfternoonIcon from "../assets/icons/cloud-sun.svg?react";
-import NightIcon from "../assets/icons/moon.svg?react";
 import TasksSeparator from "./TasksSeparator";
 
+import {
+  AddIcon,
+  TrashIcon,
+  MorningIcon,
+  AfternoonIcon,
+  NightIcon,
+} from "../assets/icons";
+
 import { useState } from "react";
+import { toast } from "sonner";
 import TASKS from "./contants/tasks";
 
 const Tasks = () => {
@@ -29,7 +32,8 @@ const Tasks = () => {
   const handleTaskDeleteClick = (taskId) => {
     const newTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(newTasks);
-    console.log("cliquei");
+
+    toast.success(`tarefa deletada com sucesso`);
   };
 
   const handleTaskCheckboxClick = (taskId) => {
