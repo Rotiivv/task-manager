@@ -61,6 +61,10 @@ const Tasks = () => {
     setTasks(newTasks);
   };
 
+  const handleDialogClose = () => {
+    setDialogIsOpen(false);
+  };
+
   return (
     <div className="py-16 px-8 w-screen">
       <div className="flex justify-between items-center">
@@ -82,7 +86,10 @@ const Tasks = () => {
             <AddIcon />
           </Button>
 
-          <AddTaskDialog isOpen={dialogIsOpen} />
+          <AddTaskDialog
+            handleClose={handleDialogClose}
+            isOpen={dialogIsOpen}
+          />
         </div>
       </div>
 
