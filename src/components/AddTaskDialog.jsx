@@ -13,18 +13,43 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
   useEffect(() => {
     if (!isOpen) {
       setDescription("");
-      setTime("");
+      setTime("morning");
       setTitle("");
+      setErros([]);
     }
   }, [isOpen]);
 
   const [title, setTitle] = useState();
   const [time, setTime] = useState("morning");
   const [description, setDescription] = useState();
+  const [errors, setErros] = useState([]);
+
+  const titleError = errors.find((error) => error.inputName === "title");
+  const descriptionError = errors.find(
+    (error) => error.inputName === "description"
+  );
 
   const handleSaveClick = () => {
-    if (!title.trim() || !description.trim())
-      return alert("campos nao preenchidos");
+    const newErros = [];
+
+    if (!title.trim()) {
+      newErros.push({
+        inputName: "title",
+        message: "O titulo e obrigatorio.",
+      });
+    }
+
+    if (!description.trim()) {
+      newErros.push({
+        inputName: "description",
+        message: "A descricao e obrigatoria.",
+      });
+    }
+
+    if (newErros.length > 0) {
+      setErros(newErros);
+      return;
+    }
 
     handleAddTask({
       id: sizeTasks + 1,
@@ -66,6 +91,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   id="title"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
+                  errorMessage={titleError?.message}
                 />
 
                 <TimeSelect
@@ -79,6 +105,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   id="description"
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
+                  errorMessage={descriptionError?.message}
                 />
 
                 <div className="flex gap-3">
