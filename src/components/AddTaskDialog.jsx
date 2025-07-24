@@ -3,13 +3,39 @@ import Input from "./Input";
 import Button from "./Button";
 
 import { CSSTransition } from "react-transition-group";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
 
-const AddTaskDialog = ({ isOpen, handleClose }) => {
+const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
   const nodeRef = useRef(null);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setDescription("");
+      setTime("");
+      setTitle("");
+    }
+  }, [isOpen]);
+
+  const [title, setTitle] = useState();
+  const [time, setTime] = useState("morning");
+  const [description, setDescription] = useState();
+
+  const handleSaveClick = () => {
+    if (!title.trim() || !description.trim())
+      return alert("campos nao preenchidos");
+
+    handleAddTask({
+      id: sizeTasks + 1,
+      title: title,
+      description: description,
+      time: time,
+      status: "not_started",
+    });
+
+    handleClose();
+  };
   // if (!isOpen) return null;
   return (
     <CSSTransition
@@ -38,14 +64,21 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
                   label="Titulo"
                   placeholder="Insira o titulo da tarefa"
                   id="title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
                 />
 
-                <TimeSelect />
+                <TimeSelect
+                  value={time}
+                  onChange={(event) => setTime(event.target.value)}
+                />
 
                 <Input
                   label="Descricao"
                   placeholder="Descreva a tarefa"
                   id="description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
                 />
 
                 <div className="flex gap-3">
@@ -56,7 +89,9 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
                   >
                     Cancelar
                   </Button>
-                  <Button size="large">Salvar</Button>
+                  <Button size="large" onClick={() => handleSaveClick()}>
+                    Salvar
+                  </Button>
                 </div>
               </div>
             </div>

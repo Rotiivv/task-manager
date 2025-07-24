@@ -1,6 +1,7 @@
 import Button from "./Button";
 import TaskItem from "./TaskItem";
 import TasksSeparator from "./TasksSeparator";
+import AddTaskDialog from "./AddTaskDialog";
 
 import {
   AddIcon,
@@ -13,7 +14,6 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import TASKS from "./contants/tasks";
-import AddTaskDialog from "./AddTaskDialog";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState(TASKS);
@@ -30,6 +30,11 @@ const Tasks = () => {
   const moonTasks = tasks.filter((task) => {
     return task.time === "moon";
   });
+
+  const handleAddTask = (newTask) => {
+    setTasks([...tasks, newTask]);
+    toast.success("Tarefa adicionada");
+  };
 
   const handleTaskDeleteClick = (taskId) => {
     const newTasks = tasks.filter((task) => task.id !== taskId);
@@ -89,6 +94,8 @@ const Tasks = () => {
           <AddTaskDialog
             handleClose={handleDialogClose}
             isOpen={dialogIsOpen}
+            handleAddTask={handleAddTask}
+            sizeTasks={tasks.length}
           />
         </div>
       </div>
