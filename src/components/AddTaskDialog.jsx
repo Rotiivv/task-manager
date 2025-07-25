@@ -8,21 +8,20 @@ import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
 
 const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
-  const nodeRef = useRef(null);
-
   useEffect(() => {
     if (!isOpen) {
-      setDescription("");
       setTime("morning");
-      setTitle("");
       setErros([]);
     }
   }, [isOpen]);
 
-  const [title, setTitle] = useState();
   const [time, setTime] = useState("morning");
-  const [description, setDescription] = useState();
+
   const [errors, setErros] = useState([]);
+
+  const nodeRef = useRef(null);
+  const titleRef = useRef(null);
+  const descriptionRef = useRef(null);
 
   const titleError = errors.find((error) => error.inputName === "title");
   const descriptionError = errors.find(
@@ -31,6 +30,11 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
 
   const handleSaveClick = () => {
     const newErros = [];
+
+    const title = titleRef.current.value;
+    const description = descriptionRef.current.value;
+
+    console.log(title);
 
     if (!title.trim()) {
       newErros.push({
@@ -89,9 +93,8 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   label="Titulo"
                   placeholder="Insira o titulo da tarefa"
                   id="title"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
                   errorMessage={titleError?.message}
+                  ref={titleRef}
                 />
 
                 <TimeSelect
@@ -103,8 +106,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   label="Descricao"
                   placeholder="Descreva a tarefa"
                   id="description"
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
+                  ref={descriptionRef}
                   errorMessage={descriptionError?.message}
                 />
 
