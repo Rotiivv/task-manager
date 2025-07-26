@@ -11,13 +11,23 @@ import {
   NightIcon,
 } from "../assets/icons";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import TASKS from "./contants/tasks";
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState(TASKS);
+  const [tasks, setTasks] = useState([]);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await fetch("http://localhost:3000/tasks");
+
+      const tasks = await response.json();
+      setTasks(tasks);
+    };
+
+    fetchTasks();
+  }, []);
 
   const morningTasks = tasks.filter((task) => {
     return task.time === "morning";
