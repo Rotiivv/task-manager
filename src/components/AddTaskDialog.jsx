@@ -56,7 +56,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
     }
 
     handleAddTask({
-      id: sizeTasks + 1,
+      id: `${sizeTasks + 1}`,
       title: title,
       description: description,
       time: time,
