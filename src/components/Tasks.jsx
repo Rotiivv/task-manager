@@ -56,7 +56,7 @@ const Tasks = () => {
     toast.success("Tarefa adicionada");
   };
 
-  const handleTaskDeleteClick = (taskId) => {
+  const onDeleteSuccess = (taskId) => {
     const newTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(newTasks);
 
@@ -130,7 +130,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                handleTaskDeleteClick={handleTaskDeleteClick}
+                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
@@ -145,7 +145,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                handleTaskDeleteClick={handleTaskDeleteClick}
+                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
@@ -160,7 +160,7 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                handleTaskDeleteClick={handleTaskDeleteClick}
+                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
