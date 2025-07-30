@@ -17,6 +17,7 @@ import { toast } from "sonner";
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [saveTaskIsLoading, setSaveTaskIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -42,16 +43,25 @@ const Tasks = () => {
   });
 
   const handleAddTask = async (newTask) => {
+    setSaveTaskIsLoading(true);
+
     const response = await fetch("http://localhost:3000/tasks", {
       method: "POST",
       body: JSON.stringify(newTask),
     });
 
     if (!response.ok) {
+      setSaveTaskIsLoading(false);
       return toast.error(
         "Erro ao adicionar tarefa. Por favor, tente novamente"
       );
     }
+
+    handleDialogClose();
+    setTimeout(() => {
+      setSaveTaskIsLoading(false);
+    }, 500);
+
     setTasks([...tasks, newTask]);
     toast.success("Tarefa adicionada");
   };
@@ -116,6 +126,7 @@ const Tasks = () => {
             isOpen={dialogIsOpen}
             handleAddTask={handleAddTask}
             sizeTasks={tasks.length}
+            saveTaskIsLoading={saveTaskIsLoading}
           />
         </div>
       </div>

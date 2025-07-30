@@ -21,7 +21,9 @@ const TaskItem = ({ task, handleTaskCheckboxClick, onDeleteSuccess }) => {
   const [deleteIsLoading, setDeleteIsLoading] = useState(false);
 
   const handleDeleteClick = async () => {
+    console.log(deleteIsLoading);
     setDeleteIsLoading(true);
+
     const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
       method: "DELETE",
     });
@@ -61,11 +63,15 @@ const TaskItem = ({ task, handleTaskCheckboxClick, onDeleteSuccess }) => {
       </div>
 
       <div className="flex items-center">
-        <Button color="secondary" onClick={() => handleDeleteClick()}>
-          {!deleteIsLoading ? (
-            <TrashIcon />
-          ) : (
+        <Button
+          disabled={deleteIsLoading}
+          color="secondary"
+          onClick={() => handleDeleteClick()}
+        >
+          {deleteIsLoading ? (
             <LoaderIcon className="animate-spin text-gray-500" />
+          ) : (
+            <TrashIcon />
           )}
         </Button>
 

@@ -6,8 +6,15 @@ import { CSSTransition } from "react-transition-group";
 import { useEffect, useRef, useState } from "react";
 import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
+import { LoaderIcon } from "../assets/icons";
 
-const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
+const AddTaskDialog = ({
+  isOpen,
+  handleClose,
+  handleAddTask,
+  sizeTasks,
+  saveTaskIsLoading,
+}) => {
   useEffect(() => {
     if (!isOpen) {
       setTime("morning");
@@ -33,8 +40,6 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
 
     const title = titleRef.current.value;
     const description = descriptionRef.current.value;
-
-    console.log(title);
 
     if (!title.trim()) {
       newErros.push({
@@ -62,8 +67,6 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
       time: time,
       status: "not_started",
     });
-
-    handleClose();
   };
   // if (!isOpen) return null;
   return (
@@ -95,10 +98,12 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   id="title"
                   errorMessage={titleError?.message}
                   ref={titleRef}
+                  disabled={saveTaskIsLoading}
                 />
 
                 <TimeSelect
                   value={time}
+                  disabled={saveTaskIsLoading}
                   onChange={(event) => setTime(event.target.value)}
                 />
 
@@ -108,6 +113,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   id="description"
                   ref={descriptionRef}
                   errorMessage={descriptionError?.message}
+                  disabled={saveTaskIsLoading}
                 />
 
                 <div className="flex gap-3">
@@ -118,7 +124,14 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   >
                     Cancelar
                   </Button>
-                  <Button size="large" onClick={() => handleSaveClick()}>
+                  <Button
+                    disabled={saveTaskIsLoading}
+                    size="large"
+                    onClick={() => handleSaveClick()}
+                  >
+                    {saveTaskIsLoading && (
+                      <LoaderIcon className="animate-spin" />
+                    )}
                     Salvar
                   </Button>
                 </div>
