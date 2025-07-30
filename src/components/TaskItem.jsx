@@ -21,7 +21,6 @@ const TaskItem = ({ task, handleTaskCheckboxClick, onDeleteSuccess }) => {
   const [deleteIsLoading, setDeleteIsLoading] = useState(false);
 
   const handleDeleteClick = async () => {
-    console.log(deleteIsLoading);
     setDeleteIsLoading(true);
 
     const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
