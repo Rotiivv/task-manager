@@ -2,6 +2,7 @@ import { toast } from "sonner";
 import { CheckIcon, LoaderIcon, DetailIcon, TrashIcon } from "../assets/icons";
 import Button from "./Button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const TaskItem = ({ task, handleTaskCheckboxClick, onDeleteSuccess }) => {
   const getStatusClass = () => {
@@ -74,9 +75,9 @@ const TaskItem = ({ task, handleTaskCheckboxClick, onDeleteSuccess }) => {
           )}
         </Button>
 
-        <a href="#" className="hover:opacity-75 transition">
+        <Link to={`/task/${task.id}`} className="hover:opacity-75 transition">
           <DetailIcon />
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -4,11 +4,16 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 import App from "./App.jsx";
+import TaskDetailsPage from "./pages/task-details.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/task/:taskId",
+    element: <TaskDetailsPage />,
   },
 ]);
 
