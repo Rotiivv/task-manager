@@ -1,6 +1,6 @@
 import { tv } from "tailwind-variants";
 
-const Button = ({ children, color, size, ...rest }) => {
+const Button = ({ children, color, size, className, ...rest }) => {
   const buttonStyle = tv({
     base: "hover:opacity-75 transition rounded-md px-3 flex gap-1 items-center font-semibold",
     variants: {
@@ -8,6 +8,7 @@ const Button = ({ children, color, size, ...rest }) => {
         primary: "bg-[#00ADB5] text-white",
         secondary: "bg-transparent text-[#818181]",
         terciary: "bg-[#EEE] text-[#35383E]",
+        danger: "bg-red-500 text-white ",
       },
       size: {
         small: "py-1 text-xs",
@@ -25,7 +26,12 @@ const Button = ({ children, color, size, ...rest }) => {
   return (
     <button
       {...rest}
-      className={buttonStyle({ color, size, disabled: rest.disabled })}
+      className={buttonStyle({
+        color,
+        size,
+        disabled: rest.disabled,
+        className,
+      })}
     >
       {children}
     </button>

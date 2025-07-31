@@ -6,6 +6,8 @@ import NightIcon from "./moon.svg?react";
 import CheckIcon from "./check.svg?react";
 import LoaderIcon from "./loader.svg?react";
 import DetailIcon from "./details.svg?react";
+import ChevronRightIcon from "./chevron-right.svg?react";
+import ArrowIcon from "./arrow-left.svg?react";
 
 export {
   AddIcon,
@@ -16,4 +18,6 @@ export {
   LoaderIcon,
   CheckIcon,
   DetailIcon,
+  ChevronRightIcon,
+  ArrowIcon,
 };
