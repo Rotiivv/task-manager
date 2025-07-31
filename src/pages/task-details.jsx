@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
-import { ChevronRightIcon, TrashIcon } from "../assets/icons";
+import { ChevronRightIcon, LoaderIcon, TrashIcon } from "../assets/icons";
 import { ArrowIcon } from "../assets/icons";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -10,8 +10,16 @@ import TimeSelect from "../components/TimeSelect";
 import { toast } from "sonner";
 
 const TaskDetailsPage = () => {
+  const navigate = useNavigate();
   const { taskId } = useParams();
+
+  const titleRef = useRef();
+  const descriptionRef = useRef();
+  const timeRef = useRef();
+
   const [task, setTask] = useState();
+  const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -25,12 +33,6 @@ const TaskDetailsPage = () => {
     fetchTasks();
   }, [taskId]);
 
-  const titleRef = useRef();
-  const descriptionRef = useRef();
-  const timeRef = useRef();
-
-  const [errors, setErrors] = useState([]);
-
   const titleError = errors.find((error) => error.inputName === "title");
   const descriptionError = errors.find(
     (error) => error.inputName === "description"
@@ -38,6 +40,7 @@ const TaskDetailsPage = () => {
 
   const handleSaveClick = async () => {
     const newErros = [];
+    setIsLoading(true);
 
     const title = titleRef.current.value;
     const description = descriptionRef.current.value;
@@ -59,6 +62,7 @@ const TaskDetailsPage = () => {
 
     if (newErros.length > 0) {
       setErrors(newErros);
+      setIsLoading(false);
       return;
     }
 
@@ -72,12 +76,33 @@ const TaskDetailsPage = () => {
     });
 
     if (!response.ok) {
+      setIsLoading(false);
       return toast.error("Error Atualizar tarefa. Por favor, tente novamente");
     }
 
     const task = await response.json();
     setTask(task);
+    setIsLoading(false);
+    setErrors([]);
     toast.success("Tarefa atualizada com sucesso");
+  };
+
+  const handleDeleteClick = async () => {
+    setIsLoading(true);
+
+    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      setIsLoading(false);
+      return toast.error(
+        "Erro ao deletar a tarefa. Por favor, tente novamente"
+      );
+    }
+    toast.success("Tarefa deletada com sucesso");
+    setIsLoading(false);
+    navigate(-1);
   };
 
   return (
@@ -111,8 +136,17 @@ const TaskDetailsPage = () => {
 
             <h1 className="font-semibold text-xl mt-1">{task?.title}</h1>
           </div>
-          <Button color="danger" className=" self-end">
-            <TrashIcon />
+          <Button
+            disabled={isLoading}
+            onClick={handleDeleteClick}
+            color="danger"
+            className=" self-end"
+          >
+            {!isLoading ? (
+              <TrashIcon />
+            ) : (
+              <LoaderIcon className="animate-spin" />
+            )}
             Deletar tarefa
           </Button>
         </div>
@@ -135,7 +169,14 @@ const TaskDetailsPage = () => {
           />
 
           <div className="flex justify-end gap-3   w-full">
-            <Button onClick={handleSaveClick} className="w-fit" size="large">
+            <Button
+              disabled={isLoading}
+              onClick={handleSaveClick}
+              className="w-fit"
+              size="large"
+            >
+              {" "}
+              {isLoading && <LoaderIcon className="animate-spin" />}
               Salvar
             </Button>
           </div>
