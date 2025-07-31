@@ -17,18 +17,16 @@ const AddTaskDialog = ({
 }) => {
   useEffect(() => {
     if (!isOpen) {
-      setTime("morning");
       setErros([]);
     }
   }, [isOpen]);
-
-  const [time, setTime] = useState("morning");
 
   const [errors, setErros] = useState([]);
 
   const nodeRef = useRef(null);
   const titleRef = useRef(null);
   const descriptionRef = useRef(null);
+  const timeRef = useRef(null);
 
   const titleError = errors.find((error) => error.inputName === "title");
   const descriptionError = errors.find(
@@ -40,6 +38,7 @@ const AddTaskDialog = ({
 
     const title = titleRef.current.value;
     const description = descriptionRef.current.value;
+    const time = timeRef.current.value;
 
     if (!title.trim()) {
       newErros.push({
@@ -101,11 +100,7 @@ const AddTaskDialog = ({
                   disabled={saveTaskIsLoading}
                 />
 
-                <TimeSelect
-                  value={time}
-                  disabled={saveTaskIsLoading}
-                  onChange={(event) => setTime(event.target.value)}
-                />
+                <TimeSelect disabled={saveTaskIsLoading} ref={timeRef} />
 
                 <Input
                   label="Descricao"

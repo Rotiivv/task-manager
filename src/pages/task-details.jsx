@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
@@ -7,6 +7,7 @@ import { ArrowIcon } from "../assets/icons";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import TimeSelect from "../components/TimeSelect";
+import { toast } from "sonner";
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
@@ -23,6 +24,61 @@ const TaskDetailsPage = () => {
 
     fetchTasks();
   }, [taskId]);
+
+  const titleRef = useRef();
+  const descriptionRef = useRef();
+  const timeRef = useRef();
+
+  const [errors, setErrors] = useState([]);
+
+  const titleError = errors.find((error) => error.inputName === "title");
+  const descriptionError = errors.find(
+    (error) => error.inputName === "description"
+  );
+
+  const handleSaveClick = async () => {
+    const newErros = [];
+
+    const title = titleRef.current.value;
+    const description = descriptionRef.current.value;
+    const time = timeRef.current.value;
+
+    if (!title.trim()) {
+      newErros.push({
+        inputName: "title",
+        message: "O titulo e obrigatorio.",
+      });
+    }
+
+    if (!description.trim()) {
+      newErros.push({
+        inputName: "description",
+        message: "A descricao e obrigatoria.",
+      });
+    }
+
+    if (newErros.length > 0) {
+      setErrors(newErros);
+      return;
+    }
+
+    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        title,
+        description,
+        time,
+      }),
+    });
+
+    if (!response.ok) {
+      return toast.error("Error Atualizar tarefa. Por favor, tente novamente");
+    }
+
+    const task = await response.json();
+    setTask(task);
+    toast.success("Tarefa atualizada com sucesso");
+  };
 
   return (
     <div className="flex w-full">
@@ -41,9 +97,12 @@ const TaskDetailsPage = () => {
             </Link>
 
             <div className="flex items-center text-xs gap-1">
-              <span className="text-gray-500 hover:underline cursor-pointer">
+              <Link
+                to={"/"}
+                className="text-gray-500 hover:underline cursor-pointer"
+              >
                 Minha tarefas
-              </span>
+              </Link>
               <ChevronRightIcon className="text-gray-500" />
               <span className="font-semibold text-[#00ADB5]">
                 {task?.title}
@@ -63,19 +122,20 @@ const TaskDetailsPage = () => {
             defaultValue={task?.title}
             label="Titulo"
             placeholder="Titulo da tarefa..."
+            errorMessage={titleError?.message}
+            ref={titleRef}
           />
-          <TimeSelect defaultValue={task?.time} />
+          <TimeSelect defaultValue={task?.time} ref={timeRef} />
           <Input
             defaultValue={task?.description}
             label="Descricao"
             placeholder="Descricao da tarefa..."
+            errorMessage={descriptionError?.message}
+            ref={descriptionRef}
           />
 
           <div className="flex justify-end gap-3   w-full">
-            <Button className="w-fit" color="secondary" size="large">
-              Cancelar
-            </Button>
-            <Button className="w-fit" size="large">
+            <Button onClick={handleSaveClick} className="w-fit" size="large">
               Salvar
             </Button>
           </div>
