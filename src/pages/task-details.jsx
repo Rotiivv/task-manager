@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
@@ -8,18 +8,21 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import TimeSelect from "../components/TimeSelect";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { createLogger } from "vite";
 
 const TaskDetailsPage = () => {
   const navigate = useNavigate();
   const { taskId } = useParams();
 
-  const titleRef = useRef();
-  const descriptionRef = useRef();
-  const timeRef = useRef();
-
   const [task, setTask] = useState();
-  const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -33,38 +36,13 @@ const TaskDetailsPage = () => {
     fetchTasks();
   }, [taskId]);
 
-  const titleError = errors.find((error) => error.inputName === "title");
-  const descriptionError = errors.find(
-    (error) => error.inputName === "description"
-  );
-
-  const handleSaveClick = async () => {
-    const newErros = [];
+  const handleSaveClick = async (data) => {
     setIsLoading(true);
+    console.log(data);
 
-    const title = titleRef.current.value;
-    const description = descriptionRef.current.value;
-    const time = timeRef.current.value;
-
-    if (!title.trim()) {
-      newErros.push({
-        inputName: "title",
-        message: "O titulo e obrigatorio.",
-      });
-    }
-
-    if (!description.trim()) {
-      newErros.push({
-        inputName: "description",
-        message: "A descricao e obrigatoria.",
-      });
-    }
-
-    if (newErros.length > 0) {
-      setErrors(newErros);
-      setIsLoading(false);
-      return;
-    }
+    const title = data.title;
+    const description = data.description;
+    const time = data.time;
 
     const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
       method: "PATCH",
@@ -83,7 +61,6 @@ const TaskDetailsPage = () => {
     const task = await response.json();
     setTask(task);
     setIsLoading(false);
-    setErrors([]);
     toast.success("Tarefa atualizada com sucesso");
   };
 
@@ -151,27 +128,35 @@ const TaskDetailsPage = () => {
           </Button>
         </div>
 
-        <div className="rounded-xl bg-white space-y-6 p-6">
+        <form
+          onSubmit={handleSubmit(handleSaveClick)}
+          className="rounded-xl bg-white space-y-6 p-6"
+        >
           <Input
             defaultValue={task?.title}
             label="Titulo"
             placeholder="Titulo da tarefa..."
-            errorMessage={titleError?.message}
-            ref={titleRef}
+            errorMessage={errors?.title}
+            {...register("title", { required: "O titulo e obrigatorio" })}
           />
-          <TimeSelect defaultValue={task?.time} ref={timeRef} />
+          <TimeSelect
+            defaultValue={task?.time}
+            {...register("time", { required: "O horario e obrigatorio" })}
+          />
           <Input
             defaultValue={task?.description}
             label="Descricao"
             placeholder="Descricao da tarefa..."
-            errorMessage={descriptionError?.message}
-            ref={descriptionRef}
+            errorMessage={errors?.description?.message}
+            {...register("Description", {
+              required: "A descricao e obrigatoria",
+            })}
           />
 
           <div className="flex justify-end gap-3   w-full">
             <Button
               disabled={isLoading}
-              onClick={handleSaveClick}
+              type="submit"
               className="w-fit"
               size="large"
             >
@@ -180,7 +165,7 @@ const TaskDetailsPage = () => {
               Salvar
             </Button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
