@@ -9,19 +9,18 @@ import Input from "../components/Input";
 import TimeSelect from "../components/TimeSelect";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { createLogger } from "vite";
 
 const TaskDetailsPage = () => {
   const navigate = useNavigate();
   const { taskId } = useParams();
 
   const [task, setTask] = useState();
-  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
+    reset,
   } = useForm();
 
   useEffect(() => {
@@ -31,54 +30,42 @@ const TaskDetailsPage = () => {
       const task = await response.json();
 
       setTask(task);
+      reset(task);
     };
 
     fetchTasks();
-  }, [taskId]);
+  }, [taskId, reset]);
 
   const handleSaveClick = async (data) => {
-    setIsLoading(true);
-    console.log(data);
-
-    const title = data.title;
-    const description = data.description;
-    const time = data.time;
-
     const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
       method: "PATCH",
       body: JSON.stringify({
-        title,
-        description,
-        time,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        time: data.time.trim(),
       }),
     });
 
     if (!response.ok) {
-      setIsLoading(false);
       return toast.error("Error Atualizar tarefa. Por favor, tente novamente");
     }
 
     const task = await response.json();
     setTask(task);
-    setIsLoading(false);
     toast.success("Tarefa atualizada com sucesso");
   };
 
   const handleDeleteClick = async () => {
-    setIsLoading(true);
-
     const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
       method: "DELETE",
     });
 
     if (!response.ok) {
-      setIsLoading(false);
       return toast.error(
         "Erro ao deletar a tarefa. Por favor, tente novamente"
       );
     }
     toast.success("Tarefa deletada com sucesso");
-    setIsLoading(false);
     navigate(-1);
   };
 
@@ -114,12 +101,12 @@ const TaskDetailsPage = () => {
             <h1 className="font-semibold text-xl mt-1">{task?.title}</h1>
           </div>
           <Button
-            disabled={isLoading}
+            disabled={isSubmitting}
             onClick={handleDeleteClick}
             color="danger"
             className=" self-end"
           >
-            {!isLoading ? (
+            {!isSubmitting ? (
               <TrashIcon />
             ) : (
               <LoaderIcon className="animate-spin" />
@@ -133,35 +120,46 @@ const TaskDetailsPage = () => {
           className="rounded-xl bg-white space-y-6 p-6"
         >
           <Input
-            defaultValue={task?.title}
             label="Titulo"
             placeholder="Titulo da tarefa..."
-            errorMessage={errors?.title}
-            {...register("title", { required: "O titulo e obrigatorio" })}
+            errorMessage={errors?.title?.message}
+            {...register("title", {
+              required: "O titulo e obrigatorio",
+              validate: (value) => {
+                const trimValue = value.trim();
+                return (
+                  trimValue.length > 0 || "O titulo nao pode ficar em branco"
+                );
+              },
+            })}
           />
           <TimeSelect
-            defaultValue={task?.time}
             {...register("time", { required: "O horario e obrigatorio" })}
           />
           <Input
-            defaultValue={task?.description}
             label="Descricao"
             placeholder="Descricao da tarefa..."
             errorMessage={errors?.description?.message}
-            {...register("Description", {
+            {...register("description", {
               required: "A descricao e obrigatoria",
+              validate: (value) => {
+                if (!value.trim())
+                  return "A descricao nao pode ficar em branco";
+
+                return true;
+              },
             })}
           />
 
           <div className="flex justify-end gap-3   w-full">
             <Button
-              disabled={isLoading}
+              disabled={isSubmitting}
               type="submit"
               className="w-fit"
               size="large"
             >
               {" "}
-              {isLoading && <LoaderIcon className="animate-spin" />}
+              {isSubmitting && <LoaderIcon className="animate-spin" />}
               Salvar
             </Button>
           </div>
