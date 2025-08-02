@@ -3,68 +3,31 @@ import Input from "./Input";
 import Button from "./Button";
 
 import { CSSTransition } from "react-transition-group";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
 import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
 import { LoaderIcon } from "../assets/icons";
 
-const AddTaskDialog = ({
-  isOpen,
-  handleClose,
-  handleAddTask,
-  sizeTasks,
-  saveTaskIsLoading,
-}) => {
-  useEffect(() => {
-    if (!isOpen) {
-      setErros([]);
-    }
-  }, [isOpen]);
-
-  const [errors, setErros] = useState([]);
-
+const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
   const nodeRef = useRef(null);
-  const titleRef = useRef(null);
-  const descriptionRef = useRef(null);
-  const timeRef = useRef(null);
+  const {
+    register,
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    reset,
+  } = useForm();
 
-  const titleError = errors.find((error) => error.inputName === "title");
-  const descriptionError = errors.find(
-    (error) => error.inputName === "description"
-  );
-
-  const handleSaveClick = () => {
-    const newErros = [];
-
-    const title = titleRef.current.value;
-    const description = descriptionRef.current.value;
-    const time = timeRef.current.value;
-
-    if (!title.trim()) {
-      newErros.push({
-        inputName: "title",
-        message: "O titulo e obrigatorio.",
-      });
-    }
-
-    if (!description.trim()) {
-      newErros.push({
-        inputName: "description",
-        message: "A descricao e obrigatoria.",
-      });
-    }
-
-    if (newErros.length > 0) {
-      setErros(newErros);
-      return;
-    }
-
-    handleAddTask({
+  const handleSaveClick = async (data) => {
+    await handleAddTask({
+      ...data,
       id: `${sizeTasks + 1}`,
-      title: title,
-      description: description,
-      time: time,
       status: "not_started",
+    });
+    reset({
+      title: "",
+      description: "",
+      time: "morning",
     });
   };
   // if (!isOpen) return null;
@@ -82,7 +45,10 @@ const AddTaskDialog = ({
             ref={nodeRef}
             className="w-screen flex justify-center items-center h-screen bg-black bg-opacity-40 fixed top-0 bottom-0 right-0"
           >
-            <div className="rounded-xl bg-white p-5 text-center shadow-xl">
+            <form
+              onSubmit={handleSubmit(handleSaveClick)}
+              className="rounded-xl bg-white p-5 text-center shadow-xl"
+            >
               <h2 className="text-[#35383E] text-xl font-semibold">
                 Nova Tarefa
               </h2>
@@ -95,43 +61,61 @@ const AddTaskDialog = ({
                   label="Titulo"
                   placeholder="Insira o titulo da tarefa"
                   id="title"
-                  errorMessage={titleError?.message}
-                  ref={titleRef}
-                  disabled={saveTaskIsLoading}
+                  errorMessage={errors?.title?.message}
+                  disabled={isSubmitting}
+                  {...register("title", {
+                    required: "O titulo e obrigatorio",
+                    validate: (value) => {
+                      const trimValue = value.trim();
+                      return (
+                        trimValue.length > 0 ||
+                        "O campo titulo nao pode ficar em branco"
+                      );
+                    },
+                  })}
                 />
 
-                <TimeSelect disabled={saveTaskIsLoading} ref={timeRef} />
+                <TimeSelect
+                  disabled={isSubmitting}
+                  {...register("time", {
+                    required: "O campo horario e obrigatorio",
+                  })}
+                />
 
                 <Input
                   label="Descricao"
                   placeholder="Descreva a tarefa"
                   id="description"
-                  ref={descriptionRef}
-                  errorMessage={descriptionError?.message}
-                  disabled={saveTaskIsLoading}
+                  errorMessage={errors?.description?.message}
+                  disabled={isSubmitting}
+                  {...register("description", {
+                    required: "O campo descricao e obrigatorio",
+                    validate: (value) => {
+                      const trimValue = value.trim();
+                      return (
+                        trimValue.length > 0 ||
+                        "O campo descricao nao pode ficar em branco"
+                      );
+                    },
+                  })}
                 />
 
                 <div className="flex gap-3">
                   <Button
                     size="large"
                     color="terciary"
+                    type="button"
                     onClick={() => handleClose()}
                   >
                     Cancelar
                   </Button>
-                  <Button
-                    disabled={saveTaskIsLoading}
-                    size="large"
-                    onClick={() => handleSaveClick()}
-                  >
-                    {saveTaskIsLoading && (
-                      <LoaderIcon className="animate-spin" />
-                    )}
+                  <Button disabled={isSubmitting} size="large" type="submit">
+                    {isSubmitting && <LoaderIcon className="animate-spin" />}
                     Salvar
                   </Button>
                 </div>
               </div>
-            </div>
+            </form>
           </div>,
           document.body
         )}
