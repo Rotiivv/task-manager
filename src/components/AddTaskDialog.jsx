@@ -8,26 +8,58 @@ import { useForm } from "react-hook-form";
 import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
 import { LoaderIcon } from "../assets/icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
+const AddTaskDialog = ({ isOpen, handleClose, sizeTasks }) => {
   const nodeRef = useRef(null);
+  const queryClient = useQueryClient();
+
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     handleSubmit,
     reset,
   } = useForm();
 
-  const handleSaveClick = async (data) => {
-    await handleAddTask({
-      ...data,
-      id: `${sizeTasks + 1}`,
-      status: "not_started",
-    });
+  const { mutate, isPending } = useMutation({
+    mutationKey: "addTaks",
+    mutationFn: async (newTask) => {
+      const response = await fetch("http://localhost:3000/tasks", {
+        method: "POST",
+        body: JSON.stringify(newTask),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao adicionar tarefa");
+      }
+    },
+  });
+
+  const handleClearInputs = () => {
     reset({
       title: "",
       description: "",
       time: "morning",
+    });
+    handleClose();
+  };
+
+  const handleSaveClick = async (data) => {
+    const task = { ...data, id: `${sizeTasks + 1}`, status: "not_started" };
+
+    mutate(task, {
+      onSuccess: () => {
+        queryClient.setQueryData("tasks", (currentTasks) => {
+          return [...currentTasks, task];
+        });
+        handleClearInputs();
+        toast.success("Tarefa deletada com sucesso");
+      },
+
+      onError: (error) => {
+        toast.error(error.message);
+      },
     });
   };
   // if (!isOpen) return null;
@@ -62,7 +94,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   placeholder="Insira o titulo da tarefa"
                   id="title"
                   errorMessage={errors?.title?.message}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   {...register("title", {
                     required: "O titulo e obrigatorio",
                     validate: (value) => {
@@ -76,7 +108,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                 />
 
                 <TimeSelect
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   {...register("time", {
                     required: "O campo horario e obrigatorio",
                   })}
@@ -87,7 +119,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                   placeholder="Descreva a tarefa"
                   id="description"
                   errorMessage={errors?.description?.message}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   {...register("description", {
                     required: "O campo descricao e obrigatorio",
                     validate: (value) => {
@@ -105,12 +137,12 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddTask, sizeTasks }) => {
                     size="large"
                     color="terciary"
                     type="button"
-                    onClick={() => handleClose()}
+                    onClick={() => handleClearInputs()}
                   >
                     Cancelar
                   </Button>
-                  <Button disabled={isSubmitting} size="large" type="submit">
-                    {isSubmitting && <LoaderIcon className="animate-spin" />}
+                  <Button disabled={isPending} size="large" type="submit">
+                    {isPending && <LoaderIcon className="animate-spin" />}
                     Salvar
                   </Button>
                 </div>

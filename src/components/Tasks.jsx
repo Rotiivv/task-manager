@@ -12,7 +12,6 @@ import {
 } from "../assets/icons";
 
 import { useState } from "react";
-import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Tasks = () => {
@@ -43,33 +42,7 @@ const Tasks = () => {
     return task.time === "moon";
   });
 
-  const handleAddTask = async (newTask) => {
-    const response = await fetch("http://localhost:3000/tasks", {
-      method: "POST",
-      body: JSON.stringify(newTask),
-    });
-
-    if (!response.ok) {
-      return toast.error(
-        "Erro ao adicionar tarefa. Por favor, tente novamente"
-      );
-    }
-
-    handleDialogClose();
-    queryClient.setQueryData("tasks", (currentTasks) => {
-      return [...currentTasks, newTask];
-    });
-    toast.success("Tarefa adicionada");
-  };
-
-  const onDeleteSuccess = async (taskId) => {
-    // refetch()
-    queryClient.setQueryData("tasks", (currentTasks) => {
-      return currentTasks.filter((task) => task.id !== taskId);
-    });
-
-    toast.success(`tarefa deletada com sucesso`);
-  };
+ 
 
   const handleTaskCheckboxClick = (taskId) => {
     const newTasks = tasks.map((task) => {
@@ -123,7 +96,6 @@ const Tasks = () => {
           <AddTaskDialog
             handleClose={handleDialogClose}
             isOpen={dialogIsOpen}
-            handleAddTask={handleAddTask}
             sizeTasks={tasks?.length}
           />
         </div>
@@ -144,7 +116,6 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
@@ -164,7 +135,6 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
@@ -184,7 +154,6 @@ const Tasks = () => {
                 key={task.id}
                 task={task}
                 handleTaskCheckboxClick={handleTaskCheckboxClick}
-                onDeleteSuccess={onDeleteSuccess}
               />
             );
           })}
