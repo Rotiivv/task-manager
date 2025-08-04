@@ -2,25 +2,10 @@ import { toast } from "sonner";
 import { CheckIcon, LoaderIcon, DetailIcon, TrashIcon } from "../assets/icons";
 import Button from "./Button";
 import { Link } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDeleteTask } from "../hooks/data/use-delete-task";
 
 const TaskItem = ({ task, handleTaskCheckboxClick }) => {
-  const queryClient = useQueryClient();
-
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["deleteTask", task.id], // unique indentifier
-    mutationFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao deletar tarefa");
-      }
-      return await response.json();
-    },
-  });
-
+  const { mutate, isPending } = useDeleteTask(task.id);
   const getStatusClass = () => {
     if (task.status === "done") {
       return "bg-[#00ADB5] text-[#00ADB5]";
@@ -38,11 +23,6 @@ const TaskItem = ({ task, handleTaskCheckboxClick }) => {
   const handleDeleteClick = async () => {
     mutate(undefined, {
       onSuccess: () => {
-        queryClient.setQueryData("tasks", (currentTasks) => {
-          return currentTasks.filter(
-            (currentTask) => currentTask.id !== task.id
-          );
-        });
         toast.success("Tarefa apaga com sucesso!");
       },
       onError: (error) => toast.error(error.message),

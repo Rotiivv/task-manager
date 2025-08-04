@@ -8,12 +8,11 @@ import { useForm } from "react-hook-form";
 import "./AddTaskDialog.css";
 import TimeSelect from "./TimeSelect";
 import { LoaderIcon } from "../assets/icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { usePostTask } from "../hooks/data/use-post-task";
 
 const AddTaskDialog = ({ isOpen, handleClose, sizeTasks }) => {
   const nodeRef = useRef(null);
-  const queryClient = useQueryClient();
 
   const {
     register,
@@ -22,19 +21,7 @@ const AddTaskDialog = ({ isOpen, handleClose, sizeTasks }) => {
     reset,
   } = useForm();
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: "addTaks",
-    mutationFn: async (newTask) => {
-      const response = await fetch("http://localhost:3000/tasks", {
-        method: "POST",
-        body: JSON.stringify(newTask),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao adicionar tarefa");
-      }
-    },
-  });
+  const { mutate, isPending } = usePostTask(sizeTasks);
 
   const handleClearInputs = () => {
     reset({
@@ -50,9 +37,6 @@ const AddTaskDialog = ({ isOpen, handleClose, sizeTasks }) => {
 
     mutate(task, {
       onSuccess: () => {
-        queryClient.setQueryData("tasks", (currentTasks) => {
-          return [...currentTasks, task];
-        });
         handleClearInputs();
         toast.success("Tarefa deletada com sucesso");
       },

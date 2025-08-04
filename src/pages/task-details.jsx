@@ -8,12 +8,13 @@ import Input from "../components/Input";
 import TimeSelect from "../components/TimeSelect";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGetTask } from "../hooks/data/use-get-task";
+import { useUpdateTask } from "../hooks/data/use-update-task";
+import { useDeleteTask } from "../hooks/data/use-delete-task";
 
 const TaskDetailsPage = () => {
   const navigate = useNavigate();
   const { taskId } = useParams();
-  const queryClient = useQueryClient();
 
   const {
     register,
@@ -22,71 +23,17 @@ const TaskDetailsPage = () => {
     reset,
   } = useForm();
 
-  const { data: task } = useQuery({
-    queryKey: ["task", taskId],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`);
+  const { data: task } = useGetTask(taskId, reset);
 
-      const data = await response.json();
-      reset(data);
+  const { mutate: updateTask, isPending: isPendingUpdate } =
+    useUpdateTask(taskId);
 
-      return data;
-    },
-  });
-
-  const { mutate: updateTask, isPending: isPendingUpdate } = useMutation({
-    mutationKey: "updateTask",
-    mutationFn: async (task) => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          title: task.title.trim(),
-          description: task.description.trim(),
-          time: task.time.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Nao foi possivel atualizar a tarefa. Por favor, tente novamente"
-        );
-      }
-
-      return await response.json();
-    },
-  });
-
-  const { mutate: deleteTask, isPending: isPendingDelete } = useMutation({
-    mutationKey: "deleteTask",
-    mutationFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Nao foi possivel deletar a Tarefa. Por favor, tente novamente"
-        );
-      }
-    },
-  });
+  const { mutate: deleteTask, isPending: isPendingDelete } =
+    useDeleteTask(taskId);
 
   const handleSaveClick = async (data) => {
     updateTask(data, {
-      onSuccess: (updatedTask) => {
-        queryClient.setQueryData(["task", taskId], () => {
-          return data;
-        });
-        toast.success("tarefa atualizada com sucesso");
-
-        queryClient.setQueryData("tasks", (currentTasks) => {
-          currentTasks.map((currentTask) => {
-            if (currentTask.id === updatedTask.id) return updatedTask;
-            return currentTask;
-          });
-        });
-      },
-
+      onSuccess: () => toast.success("tarefa atualizada com sucesso"),
       onError: (error) => toast.error(error.message),
     });
   };
@@ -94,11 +41,6 @@ const TaskDetailsPage = () => {
   const handleDeleteClick = async () => {
     deleteTask(undefined, {
       onSuccess: () => {
-        queryClient.setQueryData("tasks", (currentTasks) => {
-          return currentTasks.filter(
-            (currentTask) => currentTask.id !== taskId
-          );
-        });
         toast.success("Tarefa excluida com sucesso");
         navigate(-1);
       },
