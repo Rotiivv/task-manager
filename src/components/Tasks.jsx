@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetTasks } from "../hooks/data/use-get-tasks";
+import { taskQuerykeys } from "../keys/queries";
 
 const Tasks = () => {
   const queryClient = useQueryClient();
@@ -55,7 +56,7 @@ const Tasks = () => {
       return task;
     });
 
-    queryClient.setQueryData("tasks", newTasks);
+    queryClient.setQueryData(taskQuerykeys.getAll(), newTasks);
   };
 
   const handleDialogClose = () => {

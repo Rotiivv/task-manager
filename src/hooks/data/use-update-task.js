@@ -1,29 +1,31 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/axios";
+import { taskQuerykeys } from "../../keys/queries";
+import { taskMutationKeys } from "../../keys/mutations";
 
 export const useUpdateTask = (taskId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: "updateTask",
+    mutationKey: taskMutationKeys.update(taskId),
     mutationFn: async (task) => {
-      const response = await api.patch(`/tasks/${taskId}`, {
+      await api.patch(`/tasks/${taskId}`, {
         title: task.title.trim(),
         description: task.description.trim(),
         time: task.time.trim(),
       });
 
-      return response;
+      return task;
     },
-    onSuccess: (response) => {
-      queryClient.setQueryData(["task", taskId], () => {
-        return response;
+    onSuccess: (task) => {
+      queryClient.setQueryData(taskQuerykeys.getOne(taskId), () => {
+        return task;
       });
 
-      queryClient.setQueryData("tasks", (currentTasks) => {
+      queryClient.setQueryData(taskQuerykeys.getAll(), (currentTasks) => {
         currentTasks.map((currentTask) => {
-          if (currentTask.id !== response.id) return currentTask;
-          return response;
+          if (currentTask.id !== task.id) return currentTask;
+          return task;
         });
       });
     },
