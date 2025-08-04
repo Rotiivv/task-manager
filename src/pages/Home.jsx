@@ -1,5 +1,11 @@
+import Sidebar from "../components/Sidebar";
+
 const HomePage = () => {
-  return <h1>Home Page</h1>;
+  return (
+    <div className="flex">
+      <Sidebar />
+    </div>
+  );
 };
 
 export default HomePage;
