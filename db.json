@@ -1,25 +1,3 @@
 {
-  "tasks": [
-    {
-      "id": "1",
-      "title": "escreve alguma coisa ia cara",
-      "time": "morning",
-      "description": "precisa de mais alguma coisa",
-      "status": "not_started"
-    },
-    {
-      "id": "2",
-      "title": "em teoria",
-      "time": "morning",
-      "description": "value",
-      "status": "not_started"
-    },
-    {
-      "id": "3",
-      "title": "favcil",
-      "time": "morning",
-      "description": "tya facil",
-      "status": "not_started"
-    }
-  ]
+  "tasks": []
 }

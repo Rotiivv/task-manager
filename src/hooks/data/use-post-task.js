@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../lib/axios";
 
 export const usePostTask = (sizeTasks) => {
   const queryClient = useQueryClient();
@@ -6,13 +7,10 @@ export const usePostTask = (sizeTasks) => {
   return useMutation({
     mutationKey: "addTask",
     mutationFn: async (newTask) => {
-      const response = await fetch("http://localhost:3000/tasks", {
-        method: "POST",
-        body: JSON.stringify(newTask),
-      });
+      const { data: task } = await api.post("/tasks", newTask);
 
       const createdTask = {
-        ...(await response.json()),
+        ...task,
         id: `${sizeTasks + 1}`,
         status: "not_started",
       };

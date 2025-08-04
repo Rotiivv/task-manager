@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../lib/axios";
 
 export const useUpdateTask = (taskId) => {
   const queryClient = useQueryClient();
@@ -6,33 +7,23 @@ export const useUpdateTask = (taskId) => {
   return useMutation({
     mutationKey: "updateTask",
     mutationFn: async (task) => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          title: task.title.trim(),
-          description: task.description.trim(),
-          time: task.time.trim(),
-        }),
+      const response = await api.patch(`/tasks/${taskId}`, {
+        title: task.title.trim(),
+        description: task.description.trim(),
+        time: task.time.trim(),
       });
 
-      if (!response.ok) {
-        throw new Error(
-          "Nao foi possivel atualizar a tarefa. Por favor, tente novamente"
-        );
-      }
-
-      const data = await response.json();
-      return data;
+      return response;
     },
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.setQueryData(["task", taskId], () => {
-        return data;
+        return response;
       });
 
       queryClient.setQueryData("tasks", (currentTasks) => {
         currentTasks.map((currentTask) => {
-          if (currentTask.id !== data.id) return currentTask;
-          return data;
+          if (currentTask.id !== response.id) return currentTask;
+          return response;
         });
       });
     },
