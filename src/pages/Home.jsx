@@ -13,13 +13,16 @@ import { useGetTasks } from "../hooks/data/use-get-tasks";
 const HomePage = () => {
   const { data: tasks } = useGetTasks();
 
-  const notStartedTasks = tasks?.filter(
-    (task) => task.status === "not_started"
-  );
-  const inProgressTasks = tasks?.filter(
-    (task) => task.status === "in_progress"
-  );
-  const completedTasks = tasks?.filter((task) => task.status === "done");
+  console.log("VITE_API_URL:", import.meta.env.VITE_API_URL);
+  const notStartedTasks = tasks?.filter((task) => {
+    return task.status === "not_started";
+  });
+  const inProgressTasks = tasks?.filter((task) => {
+    return task.status === "in_progress";
+  });
+  const completedTasks = tasks?.filter((task) => {
+    return task.status === "done";
+  });
 
   return (
     <div className="flex w-full">
