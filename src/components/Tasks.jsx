@@ -1,27 +1,13 @@
-import Button from "./Button";
 import TaskItem from "./TaskItem";
 import TasksSeparator from "./TasksSeparator";
-import AddTaskDialog from "./AddTaskDialog";
 
-import {
-  AddIcon,
-  TrashIcon,
-  MorningIcon,
-  AfternoonIcon,
-  NightIcon,
-} from "../assets/icons";
+import { MorningIcon, AfternoonIcon, NightIcon } from "../assets/icons";
 
-import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useGetTasks } from "../hooks/data/use-get-tasks";
-import { taskQuerykeys } from "../keys/queries";
+import Header from "./Header";
 
 const Tasks = () => {
-  const queryClient = useQueryClient();
-
   const { data: tasks } = useGetTasks();
-
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
   const morningTasks = tasks?.filter((task) => {
     return task.time === "morning";
@@ -35,62 +21,13 @@ const Tasks = () => {
     return task.time === "moon";
   });
 
-  const handleTaskCheckboxClick = (taskId) => {
-    const newTasks = tasks.map((task) => {
-      if (task.id !== taskId) {
-        return task;
-      }
-
-      if (task.status === "not_started") {
-        return { ...task, status: "in_progress" };
-      }
-
-      if (task.status === "in_progress") {
-        return { ...task, status: "done" };
-      }
-
-      if (task.status === "done") {
-        return { ...task, status: "not_started" };
-      }
-
-      return task;
-    });
-
-    queryClient.setQueryData(taskQuerykeys.getAll(), newTasks);
-  };
-
-  const handleDialogClose = () => {
-    setDialogIsOpen(false);
-  };
-
   return (
     <div className="py-16 px-8 w-screen">
-      <div className="flex justify-between items-center">
-        <div>
-          <span className="text-[#00ADB5] text-xs font-semibold">
-            Minhas Tarefas
-          </span>
-          <h2 className="text-xl font-semibold">Minhas Tarefas</h2>
-        </div>
-
-        <div className="flex gap-3 items-center">
-          <Button color="secondary">
-            Limpar Tarefas
-            <TrashIcon />
-          </Button>
-
-          <Button onClick={() => setDialogIsOpen(true)}>
-            Adicionar Tarefa
-            <AddIcon />
-          </Button>
-
-          <AddTaskDialog
-            handleClose={handleDialogClose}
-            isOpen={dialogIsOpen}
-            sizeTasks={tasks?.length}
-          />
-        </div>
-      </div>
+      <Header
+        sizeTasks={tasks?.length}
+        title="Minhas tarefas"
+        subtitle="Minhas tarefas"
+      />
 
       <div className="bg-white rounded-xl p-6 mt-10">
         <div className="space-y-3">
@@ -102,13 +39,7 @@ const Tasks = () => {
           )}
 
           {morningTasks?.map((task) => {
-            return (
-              <TaskItem
-                key={task.id}
-                task={task}
-                handleTaskCheckboxClick={handleTaskCheckboxClick}
-              />
-            );
+            return <TaskItem key={task.id} task={task} />;
           })}
         </div>
 
@@ -121,13 +52,7 @@ const Tasks = () => {
             </p>
           )}
           {afternoonTasks?.map((task) => {
-            return (
-              <TaskItem
-                key={task.id}
-                task={task}
-                handleTaskCheckboxClick={handleTaskCheckboxClick}
-              />
-            );
+            return <TaskItem key={task.id} task={task} />;
           })}
         </div>
 
@@ -140,13 +65,7 @@ const Tasks = () => {
             </p>
           )}
           {moonTasks?.map((task) => {
-            return (
-              <TaskItem
-                key={task.id}
-                task={task}
-                handleTaskCheckboxClick={handleTaskCheckboxClick}
-              />
-            );
+            return <TaskItem key={task.id} task={task} />;
           })}
         </div>
       </div>

@@ -59,7 +59,7 @@ const TaskDetailsPage = () => {
           <div className="">
             <Link
               className="flex justify-center items-center rounded-full bg-[#00ADB5] h-8 w-8 mb-2 cursor-pointer hover:opacity-75 transition"
-              to={"/"}
+              to={"/tasks"}
             >
               <ArrowIcon />
             </Link>

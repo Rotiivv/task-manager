@@ -10,9 +10,10 @@ export const useUpdateTask = (taskId) => {
     mutationKey: taskMutationKeys.update(taskId),
     mutationFn: async (task) => {
       await api.patch(`/tasks/${taskId}`, {
-        title: task.title.trim(),
-        description: task.description.trim(),
-        time: task.time.trim(),
+        title: task?.title?.trim(),
+        description: task?.description?.trim(),
+        time: task?.time,
+        status: task?.status,
       });
 
       return task;
@@ -23,8 +24,10 @@ export const useUpdateTask = (taskId) => {
       });
 
       queryClient.setQueryData(taskQuerykeys.getAll(), (currentTasks) => {
-        currentTasks.map((currentTask) => {
-          if (currentTask.id !== task.id) return currentTask;
+        return currentTasks.map((currentTask) => {
+          if (currentTask.id !== task.id) {
+            return currentTask;
+          }
           return task;
         });
       });

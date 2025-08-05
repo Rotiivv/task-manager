@@ -3,9 +3,13 @@ import { CheckIcon, LoaderIcon, DetailIcon, TrashIcon } from "../assets/icons";
 import Button from "./Button";
 import { Link } from "react-router-dom";
 import { useDeleteTask } from "../hooks/data/use-delete-task";
+import { useUpdateTask } from "../hooks/data/use-update-task";
 
-const TaskItem = ({ task, handleTaskCheckboxClick }) => {
-  const { mutate, isPending } = useDeleteTask(task.id);
+const TaskItem = ({ task }) => {
+  const { mutate: deleteTask, isPending } = useDeleteTask(task.id);
+
+  const { mutate: updateTask } = useUpdateTask(task.id);
+
   const getStatusClass = () => {
     if (task.status === "done") {
       return "bg-[#00ADB5] text-[#00ADB5]";
@@ -20,8 +24,28 @@ const TaskItem = ({ task, handleTaskCheckboxClick }) => {
     }
   };
 
+  const getNewStatus = () => {
+    if (task.status === "not_started") return "in_progress";
+    if (task.status === "in_progress") return "done";
+    if (task.status === "done") return "not_started";
+
+    return "not_sarted";
+  };
+
+  const handleCheckboxClick = () => {
+    updateTask(
+      { ...task, status: getNewStatus() },
+      {
+        onSuccess: () => {
+          toast.success("Tarefa atualizada com sucesso");
+        },
+        onError: (error) => toast.error(error.message),
+      }
+    );
+  };
+
   const handleDeleteClick = async () => {
-    mutate(undefined, {
+    deleteTask(undefined, {
       onSuccess: () => {
         toast.success("Tarefa apaga com sucesso!");
       },
@@ -42,7 +66,7 @@ const TaskItem = ({ task, handleTaskCheckboxClick }) => {
             type="checkbox"
             id={`checkbox${task.id}`}
             className="hidden"
-            onClick={() => handleTaskCheckboxClick(task.id)}
+            onClick={handleCheckboxClick}
           />
 
           {task.status === "done" && <CheckIcon />}
